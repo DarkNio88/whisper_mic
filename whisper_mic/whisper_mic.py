@@ -15,14 +15,14 @@ from whisper_mic.utils import get_logger
 
 
 class WhisperMic:
-    def __init__(self,model="base",device=("cuda" if torch.cuda.is_available() else "cpu"),italian=False,verbose=False,energy=300,pause=0.8,dynamic_energy=False,save_file=False):
+    def __init__(self,model="base",device=("cuda" if torch.cuda.is_available() else "cpu"),english=False,verbose=False,energy=300,pause=0.8,dynamic_energy=False,save_file=False):
         self.logger = get_logger("whisper_mic", "info")
         self.energy = energy
         self.pause = pause
         self.dynamic_energy = dynamic_energy
         self.save_file = save_file
         self.verbose = verbose
-        self.italian = italian
+        self.english = english
 
         self.platform = platform.system()
 
@@ -32,8 +32,8 @@ class WhisperMic:
                 device = "mps"
                 device = torch.device(device)
 
-        if model != "large" and self.italian:
-            model = model + ".it"
+        if model != "large" and self.english:
+            model = model + ".en"
 
         self.audio_model = whisper.load_model(model).to(device)
         self.temp_dir = tempfile.mkdtemp() if save_file else None
@@ -99,10 +99,10 @@ class WhisperMic:
         else:
             audio_data = data
         audio_data = self.preprocess(audio_data)
-        if self.italian:
-            result = self.audio_model.transcribe(audio_data,language='italian',fp16=False)
+        if self.english:
+            result = self.audio_model.transcribe(audio_data,language='english',fp16=False)
         else:
-            result = self.audio_model.transcribe(audio_data,fp16=False)
+            result = self.audio_model.transcribe(audio_data,language='italian',fp16=False)
 
         predicted_text = result["text"]
         if not self.verbose:
